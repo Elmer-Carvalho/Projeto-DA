@@ -43,7 +43,7 @@ def adicionarNoArquivo(inf_para_adicionar='', nome_do_arquivo=''):
     arq.close()
 
 
-def cabeçalho(caracter='-', frase='', cor=''):
+def cabeçalho(caracter='-', frase='', cor='', tamanho=20):
     '''
     --> Cria um cabeçalho com uma frase centralizada.
     :param caracter: Caracter que formará a linha superior e inferior.
@@ -51,9 +51,9 @@ def cabeçalho(caracter='-', frase='', cor=''):
     :param cor: Cor que será usada.
     :return: Sem retorno.
     '''
-    print(caracter * (len(frase) + 20))
-    print(' ' * 9, f'{cor}{frase}\033[m')
-    print(caracter * (len(frase) + 20))
+    print(caracter * (len(frase) + tamanho))
+    print((' ' * int(tamanho / 2)) + f'{cor}{frase}\033[m')
+    print(caracter * (len(frase) + tamanho))
 
 
 def pegarTelefone():
@@ -339,13 +339,13 @@ def compras(nome_do_arquivo=''):
                 inf_do_arq.append(linhas)
                 cód_produtos.append(linhas.split(';')[0]) #Passa todos os códigos de produto para a lista.
     except:
-        print('-- Não foi possível a leitura do arquivo de produtos --')
+        frase = 'Não foi possível a leitura do arquivo de produtos'
+        cabeçalho(caracter='~', frase=frase, cor='\033[31m')
     else:
         continuar_compra = True
         while continuar_compra:
             código = None
             repetição = False  # Variável para análise de repetição.
-            sem_estoque = False  # Variável para análise de produtos com estoque 0.
             while código is None:
                 try:
                     código = str(input('Código do produto: ')).strip()  # Código do produto que será comprado.
@@ -354,11 +354,15 @@ def compras(nome_do_arquivo=''):
                     cabeçalho(caracter='~', frase=frase, cor='\033[31m')
                     código = None
                 else:
-                    if not código.isnumeric():  # Verifica se é composto por somente números.
+                    if código == '':  # Verifica se o código está vazio.
+                        frase = 'Por favor, preencha com um código de produto'
+                        cabeçalho(caracter='~', frase=frase, cor='\033[31m')
+                        código = None
+                    elif not código.isnumeric():  # Verifica se é composto por somente números.
                         frase = 'O código dos produtos são compostos somente por números'
                         cabeçalho(caracter='~', frase=frase, cor='\033[31m')
                         código = None
-                    if código not in cód_produtos:  # Verifica se o código se encontra entre os códigos de produtos.
+                    elif código not in cód_produtos:  # Verifica se o código se encontra entre os códigos de produtos.
                         frase = 'O código digitado não corresponde a um produto'
                         cabeçalho(caracter='~', frase=frase, cor='\033[31m')
                         código = None
@@ -370,78 +374,77 @@ def compras(nome_do_arquivo=''):
                                 for linhas in arq:
                                     if código == linhas.split(';')[0]:  # Verifica qual o produto escolhido.
                                         if int(linhas.split(';')[3]) == 0:  # Verifica se está sem estoque.
-                                            sem_estoque = True  # Caso estoque seja 0, a variável recebe True.
                                             frase = 'No momento estamos com falta do produto'
                                             cabeçalho(caracter='~', frase=frase, cor='\033[31m')
-                                        else:  # Se houver estoque, passa informações para o dicionário.
-                                            org['produto'] = linhas.split(';')[1]
-                                            org['código'] = linhas.split(';')[0]
-                                            org['preçoUnidade'] = float(linhas.split(';')[2])
-                                            org['estoque'] = int(linhas.split(';')[3])
-                                            cód_usados.append(código)
-                                        if sem_estoque:  # Caso a variável seja True, verifica se o cliente deseja continuar a compra.
                                             perg = str(input('Quer continuar a compra?[S/N] ')).strip().upper()[0]
                                             while perg not in 'SN':
                                                 print('Digite SIM ou NÃO')
                                                 perg = str(input('Quer continuar a compra?[S/N] ')).strip().upper()[0]
                                             if perg == 'S':
                                                 código = None
+                                            else:
+                                                continuar_compra = False
+                                        else:  # Se houver estoque, passa informações para o dicionário.
+                                            org['produto'] = linhas.split(';')[1]
+                                            org['código'] = linhas.split(';')[0]
+                                            org['preçoUnidade'] = float(linhas.split(';')[2])
+                                            org['estoque'] = int(linhas.split(';')[3])
+                                            cód_usados.append(código)
+
                         else:
                             repetição = True  # Caso o código esteja na lista de já usados, a var recebe True.
 
-            quantidade = None
-            while quantidade is None:
-                try:
-                    quantidade = int(input('Quantidade a ser comprada:'))  # Quantidade do produto a ser comprada.
-                except:
-                    frase = 'Dado inválido'
-                    cabeçalho(caracter='~', frase=frase, cor='\033[31m')
-                    quantidade = None
-                else:
-                    if not repetição:  # Verifica se a var de repetição é False.
-                        org['quantidade'] = quantidade  # Não sendo repetição, adiciona informação no dicionário.
-                        if org['quantidade'] > org['estoque']:  # Verifica se a quantidade excede o estoque do produto.
-                            frase = f'A quantia excede o estoque de {org["estoque"]} {org["produto"]}'
-                            cabeçalho(caracter='~', frase=frase, cor='\033[31m')
-                            quantidade = None
-                        else:
-                            org['estoque'] -= org['quantidade'] #Se não exceder, refaz o estoque com a subtração da quantidade comprada.
-                            org["preçoTot"] = org['quantidade'] * org['preçoUnidade'] #Adiciona no dicionário o preço total de compra daquele produto.
-                            lista_geral.append(org.copy())  # Manda para a lista que irá conter todos os dicionários, uma cópia das informações.
+            if continuar_compra:
+                quantidade = None
+                while quantidade is None:
+                    try:
+                        quantidade = int(input('Quantidade a ser comprada:'))  # Quantidade do produto a ser comprada.
+                    except:
+                        frase = 'Dado inválido'
+                        cabeçalho(caracter='~', frase=frase, cor='\033[31m')
+                        quantidade = None
                     else:
-                        for num, dicionários in enumerate(lista_geral): #Percorre a lista, pegando seus índices e dicionários.
-                            if dicionários['código'] == código: #Verifica em qual dicionário está a correspondência de código.
-                                if quantidade <= dicionários['estoque']: #Verifica se a quantidade não excede o estoque do produto.
-                                    lista_geral[num]['quantidade'] += quantidade #Adiciona nas informações já existentes daquele produto, a quantidade a mais a ser comprada.
-                                    lista_geral[num]['preçoTot'] += quantidade * lista_geral[num]['preçoUnidade'] #Adiciona no preço total a quantia com base na quantidade comprada.
-                                    lista_geral[num]['estoque'] -= quantidade #Refaz o estoque do produto, subtraindo novamente com a quantidade a mais comprada.
-                                else:
-                                    frase = f'A quantidade excede o estoque de {lista_geral[num]["estoque"]} {lista_geral[num]["produto"]}'
-                                    cabeçalho(caracter='~', frase=frase, cor='\033[31m')
-                                    quantidade = None
-                    print(lista_geral)
-            perg = str(input('Deseja realizar mais uma compra?[S/N] ')).strip().upper()[0]
-            while perg not in 'SN':
-                print('Digite SIM ou NÃO')
+                        if not repetição:  # Verifica se a var de repetição é False.
+                            org['quantidade'] = quantidade  # Não sendo repetição, adiciona informação no dicionário.
+                            if org['quantidade'] > org['estoque']:  # Verifica se a quantidade excede o estoque do produto.
+                                frase = f'A quantia excede o estoque de {org["estoque"]} {org["produto"]}'
+                                cabeçalho(caracter='~', frase=frase, cor='\033[31m')
+                                quantidade = None
+                            else:
+                                org['estoque'] -= org['quantidade'] #Se não exceder, refaz o estoque com a subtração da quantidade comprada.
+                                org["preçoTot"] = org['quantidade'] * org['preçoUnidade']  # Adiciona no dicionário o preço total de compra daquele produto.
+                                lista_geral.append(org.copy())  # Manda para a lista que irá conter todos os dicionários, uma cópia das informações.
+                        else:
+                            for num, dicionários in enumerate(lista_geral): #Percorre a lista, pegando seus índices e dicionários.
+                                if dicionários['código'] == código: #Verifica em qual dicionário está a correspondência de código.
+                                    if quantidade <= dicionários['estoque']: #Verifica se a quantidade não excede o estoque do produto.
+                                        lista_geral[num]['quantidade'] += quantidade  #Adiciona nas informações já existentes daquele produto, a quantidade a mais a ser comprada.
+                                        lista_geral[num]['preçoTot'] += quantidade * lista_geral[num]['preçoUnidade'] #Adiciona no preço total a quantia com base na quantidade comprada.
+                                        lista_geral[num]['estoque'] -= quantidade #Refaz o estoque do produto, subtraindo novamente com a quantidade a mais comprada.
+                                    else:
+                                        frase = f'A quantidade excede o estoque de {lista_geral[num]["estoque"]} {lista_geral[num]["produto"]}'
+                                        cabeçalho(caracter='~', frase=frase, cor='\033[31m')
+                                        quantidade = None
                 perg = str(input('Deseja realizar mais uma compra?[S/N] ')).strip().upper()[0]
-            if perg == 'N': #Verifica se quer fazer mais uma compra, caso 'S', volta para o mesmo processo.
-                continuar_compra = False
+                while perg not in 'SN':
+                    print('Digite SIM ou NÃO')
+                    perg = str(input('Deseja realizar mais uma compra?[S/N] ')).strip().upper()[0]
+                if perg == 'N': #Verifica se quer fazer mais uma compra, caso 'S', volta para o mesmo processo.
+                    continuar_compra = False
 
+    if lista_geral:
         with open(nome_do_arquivo, 'wt+', encoding='utf8') as arq:  # Cria um novo arquivo de mesmo nome.
             arq.write('código;produto;preço;estoque' + '\n')  # Digita a primeira linha de organização.
         with open(nome_do_arquivo, 'at', encoding='utf8') as arq:  # Abre o arquivo récem criado, para incremento de informação.
-            for linhas in inf_do_arq:  # Percorre a lista com as linhas do arquivo apagado e recriado.
-                if not lista_geral:
-                    arq.write(linhas)  # Caso não tenha sido feita uma compra, ele repassa as informações sem alteração.
-                else:
-                    for dicionários in lista_geral:  # Percorre os dicionários contidos na lista.
-                        if linhas.split(';')[0] == dicionários['código']:  # Verifica se algum código das linhas armazenadas é igual a algum código de compra armazenado.
-                            correção = linhas.split(';')  # Cria a var correção, para modificar o arquivo com base nas compras feitas.
-                            correção[3] = str(dicionários['estoque'])  # Refaz o estoque do arquivo com base no estoque alterado pela compra.
-                            arq.write(';'.join(correção) + '\n')  # Envia a alteração para o arquivo.
-                        else:
-                            arq.write(linhas)  # Não havendo igualdade com algum código de compra, envia para o arquivo informações sem alterações.
-    return lista_geral  # Retorna a lista que contém todos os dados de compra dos produtos.
+            for num, linhas in enumerate(inf_do_arq):  # Percorre a lista com as linhas do arquivo apagado e recriado.
+                for dicionários in lista_geral:  # Percorre os dicionários contidos na lista.
+                    if linhas.split(';')[0] == dicionários['código']:  # Verifica se algum código das linhas armazenadas é igual a algum código de compra armazenado.
+                        correção = linhas.split(';')  # Cria a var correção, para modificar o arquivo com base nas compras feitas.
+                        correção[3] = str(dicionários['estoque'])  # Refaz o estoque do arquivo com base no estoque alterado pela compra.
+                        linhas = ';'.join(correção) + '\n'
+                arq.write(linhas)
+
+        return lista_geral  # Retorna a lista que contém todos os dados de compra dos produtos.
 
 
 def mudarEstoque(nome_do_arquivo='', nome_arquivo_adição=''):
@@ -548,7 +551,6 @@ def mudarEstoque(nome_do_arquivo='', nome_arquivo_adição=''):
     with open(nome_do_arquivo, 'at', encoding='utf8') as arq:  # Abre o arquivo récem criado, para incremento de informação.
         for linhas in lista_linhas:  # Percorre a lista com as linhas do arquivo apagado e recriado.
             arq.write(linhas)
-        print('Mudança realizada')
 
 
 def adicionarProduto(nome_do_arquivo=''):
@@ -678,3 +680,57 @@ def excluirProduto(nome_do_arquivo=''):
     with open(nome_do_arquivo, 'at', encoding='utf8') as arq:
         for linhas in conteudo:
             arq.write(linhas) #Insere no arquivo cada elemento da lista, correspondente as linhas do arquivo anterior alteradas.
+
+
+def notaFiscal(lista=[], nome_do_arquivo='', cpf='', exibir=False):
+    '''
+    --> Função para criação ou exibição da nota fiscal.
+    :param lista: Lista contendo os dados referentes a compra.
+    :param nome_do_arquivo: Nome do arquivo que será criado.
+    :param cpf: CPF do responsável pela compra.
+    :param exibir: Parâmetro para definição de uso da função.
+    :return: Sem retorno.
+    '''
+    import datetime
+
+    if exibir:
+        print('\n\n')
+        cabeçalho(frase='NOTA FISCAL', tamanho=90, cor='\033[1m')
+        print(f'CPF: {cpf}')
+        preço_total = 0
+        for produtos in lista:  # Percorre os dicionários com dados da compra.
+            preço_total += produtos['preçoTot']  # Cálculo do preço total da compra.
+            produtos['preçoUnidade'] = f"{produtos['preçoUnidade']:.2f}".replace('.', ',')  # Formatação para preço em Real.
+            produtos['preçoTot'] = f"{produtos['preçoTot']:.2f}".replace('.', ',')  # Formatação para preço em Real.
+            print(f'Código:{produtos["código"]} - Produto:{produtos["produto"]} - PreçoUnidade:R${produtos["preçoUnidade"]} - ',end='')
+            print(f'Quantidade:{produtos["quantidade"]} - PreçoTotal:R${produtos["preçoTot"]}')
+        print(f'\033[1mTotal da compra: R${preço_total:.2f}\033[m'.replace('.', ','))
+        print('-' * 101)
+
+    else:
+        data = [str(datetime.date.today().day), str(datetime.date.today().month), str(datetime.date.today().year)]
+        for num, momento in enumerate(data):
+            if len(momento) < 2:  # Verifica se o componente da data ocupa duas casas.
+                data[num] = '0' + data[num]  # Coloca um '0' na frente para a padronização.
+        nome_do_arquivo = nome_do_arquivo + ';' + '.'.join(data) + '.txt'  # Nome do arquivo que será gerado.
+        try:
+            with open(nome_do_arquivo, 'wt+', encoding='utf8') as arq:
+                arq.write('--Nota Fiscal--\n')
+                arq.write(f"CPF:{cpf}\n")
+        except:
+            print('O arquivo não pôde ser criado')
+        else:
+            try:
+                arq = open(nome_do_arquivo, 'at', encoding='utf8')
+                preço_total = 0
+                for dic in lista:
+                    preço_total += float(str(dic['preçoUnidade']).replace(',', '.'))
+                    arq.write(f'Código:{dic["código"]};Produto:{dic["produto"]};PreçoUnidade:R${dic["preçoUnidade"]};')
+                    arq.write(f'Quantidade:{dic["quantidade"]};PreçoTotal:R${dic["preçoTot"]}\n')
+                arq.write(f'TotalDaCompra:R${preço_total:.2f}'.replace('.', ','))
+            except:
+                print('Não foi possível adicionar dados na nota')
+            else:
+                print('-Nota fiscal criada-')
+            finally:
+                arq.close()

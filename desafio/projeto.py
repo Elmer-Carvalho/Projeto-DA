@@ -54,7 +54,7 @@ if opção == 3:
             if senha_f == '':
                 frase = 'Preencha com a senha de funcionário'
                 qc.cabeçalho(caracter='~', frase=frase, cor='\033[31m')
-                código_f = None
+                senha_f = None
 
     login_f = qc.realizarLogin(pos1=0, pos2=2, login1=código_f, login2=senha_f, nome_do_arquivo='funcionários.txt')
 
@@ -102,6 +102,7 @@ if opção == 3:
                             qc.cabeçalho(caracter='~', frase=frase, cor='\033[31m')
                             perg = str(input('Fim das alterações?[S/N] ')).strip().upper()[0]
                         if perg == 'S':
+                            print('\033[1mAlterações Concluídas\033[m')
                             continuar = False
 
 else:
@@ -151,3 +152,18 @@ else:
                         qc.ordenarProdutos(ord_de_cód=True)  # Ordena de modo crescente com base no código.
 
         lista_compras = qc.compras('produtos.txt')
+
+        cpf = 0
+        with open('cadastro.txt', 'rt', encoding='utf8') as arq:
+            arq.readline()
+            for cadastros in arq:
+                divisão_dados = cadastros.split(';')
+                if email_login == divisão_dados[2] and senha_login == divisão_dados[3].replace('\n', ''):  # Verifica a linha do arquivo em que os dados estão cadastrados.
+                    cpf = divisão_dados[0]  # Atribui o cpf da pessoa que está fazendo compras.
+                    break
+
+        qc.notaFiscal(lista=lista_compras, cpf=cpf, nome_do_arquivo=cpf, exibir=True)  # Exibe a nota fiscal.
+        qc.notaFiscal(lista=lista_compras, cpf=cpf, nome_do_arquivo=cpf, exibir=False)  # Cria  o arquivo nota fiscal.
+        print('Super Mercado ABA agradece a preferência. Volte sempre!')
+        print('Finalizando...')
+        sleep(2)
