@@ -63,12 +63,12 @@ if opção == 3:
 
         continuar = True
         while continuar:
-            perg = str(input('Quer ver a lista de produtos?[S/N] ')).strip().upper()[0]
-            while perg not in 'SN':
+            perg = str(input('Quer ver a lista de produtos?[Sim/Não] ')).strip().upper()
+            while perg not in ['SIM', 'NÃO', 'NAO']:
                 frase = 'Digite SIM ou NÃO'
                 qc.cabeçalho(caracter='~', frase=frase, cor='\033[31m')
-                perg = str(input('Quer ver a lista de produtos?[S/N] ')).strip().upper()[0]
-            if perg == 'S':
+                perg = str(input('Quer ver a lista de produtos?[Sim/Não] ')).strip().upper()
+            if perg == 'SIM':
                 qc.ordenarProdutos(ord_de_cód=True)
             print('-COMANDOS-')
             print('[1] - Adicionar um novo produto')
@@ -96,12 +96,12 @@ if opção == 3:
                         else:
                             qc.excluirProduto('produtos.txt')
 
-                        perg = str(input('Fim das alterações?[S/N] ')).strip().upper()[0]
-                        while perg not in 'SN':
+                        perg = str(input('Fim das alterações?[Sim/Não] ')).strip().upper()
+                        while perg not in ['SIM', 'NÃO', 'NAO']:
                             frase = 'Digite SIM ou NÃO'
                             qc.cabeçalho(caracter='~', frase=frase, cor='\033[31m')
-                            perg = str(input('Fim das alterações?[S/N] ')).strip().upper()[0]
-                        if perg == 'S':
+                            perg = str(input('Fim das alterações?[S/N] ')).strip().upper()
+                        if perg == 'SIM':
                             print('\033[1mAlterações Concluídas\033[m')
                             continuar = False
 
@@ -163,7 +163,7 @@ else:
                     break
 
         qc.notaFiscal(lista=lista_compras, cpf=cpf, nome_do_arquivo=cpf, exibir=True)  # Exibe a nota fiscal.
-        qc.notaFiscal(lista=lista_compras, cpf=cpf, nome_do_arquivo=cpf, exibir=False)  # Cria  o arquivo nota fiscal.
+        qc.notaFiscal(lista=lista_compras, cpf=cpf, nome_do_arquivo=cpf, exibir=False)  # Cria o arquivo nota fiscal.
         print('Super Mercado ABA agradece a preferência. Volte sempre!')
         print('Finalizando...')
         sleep(2)

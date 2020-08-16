@@ -49,6 +49,7 @@ def cabeçalho(caracter='-', frase='', cor='', tamanho=20):
     :param caracter: Caracter que formará a linha superior e inferior.
     :param frase: Frase a ser centralizada.
     :param cor: Cor que será usada.
+    :param tamanho: Tamanho das linhas traçadas em cima e embaixo da frase.
     :return: Sem retorno.
     '''
     print(caracter * (len(frase) + tamanho))
@@ -376,11 +377,12 @@ def compras(nome_do_arquivo=''):
                                         if int(linhas.split(';')[3]) == 0:  # Verifica se está sem estoque.
                                             frase = 'No momento estamos com falta do produto'
                                             cabeçalho(caracter='~', frase=frase, cor='\033[31m')
-                                            perg = str(input('Quer continuar a compra?[S/N] ')).strip().upper()[0]
-                                            while perg not in 'SN':
-                                                print('Digite SIM ou NÃO')
-                                                perg = str(input('Quer continuar a compra?[S/N] ')).strip().upper()[0]
-                                            if perg == 'S':
+                                            perg = str(input('Quer continuar a compra?[Sim/Não] ')).strip().upper()
+                                            while perg not in ['SIM', 'NÃO', 'NAO']:
+                                                frase = 'Digite SIM ou NÃO'
+                                                cabeçalho(caracter='~', frase=frase, cor='\033[31m')
+                                                perg = str(input('Quer continuar a compra?[Sim/Não] ')).strip().upper()
+                                            if perg == 'SIM':
                                                 código = None
                                             else:
                                                 continuar_compra = False
@@ -425,11 +427,12 @@ def compras(nome_do_arquivo=''):
                                         frase = f'A quantidade excede o estoque de {lista_geral[num]["estoque"]} {lista_geral[num]["produto"]}'
                                         cabeçalho(caracter='~', frase=frase, cor='\033[31m')
                                         quantidade = None
-                perg = str(input('Deseja realizar mais uma compra?[S/N] ')).strip().upper()[0]
-                while perg not in 'SN':
-                    print('Digite SIM ou NÃO')
-                    perg = str(input('Deseja realizar mais uma compra?[S/N] ')).strip().upper()[0]
-                if perg == 'N': #Verifica se quer fazer mais uma compra, caso 'S', volta para o mesmo processo.
+                perg = str(input('Deseja realizar mais uma compra?[Sim/Não] ')).strip().upper()
+                while perg not in ['SIM', 'NÃO', 'NAO']:
+                    frase = 'Digite SIM ou NÃO'
+                    cabeçalho(caracter='~', frase=frase, cor='\033[31m')
+                    perg = str(input('Deseja realizar mais uma compra?[Sim/Não] ')).strip().upper()
+                if perg == 'NÃO' or perg == 'NAO': #Verifica se quer fazer mais uma compra.
                     continuar_compra = False
 
     if lista_geral:
@@ -510,7 +513,7 @@ def mudarEstoque(nome_do_arquivo='', nome_arquivo_adição=''):
                         frase = 'O código dos produtos são compostos somente por números'
                         cabeçalho(caracter='~', frase=frase, cor='\033[31m')
                         código = None
-                    if código not in cód_produtos:  # Verifica se o código se encontra entre os códigos de produtos.
+                    elif código not in cód_produtos:  # Verifica se o código se encontra entre os códigos de produtos.
                         frase = 'O código digitado não corresponde a um produto'
                         cabeçalho(caracter='~', frase=frase, cor='\033[31m')
                         código = None
@@ -587,7 +590,7 @@ def adicionarProduto(nome_do_arquivo=''):
                     frase = 'Preencha o nome do produto'
                     cabeçalho(caracter='~', frase=frase, cor='\033[31m')
                     nome = None
-                if nome in nome_produtos: #Verifica se o nome está dentro da lista com o nome de todos os produtos.
+                elif nome in nome_produtos: #Verifica se o nome está dentro da lista com o nome de todos os produtos.
                     frase = 'Um produto com este nome já está cadastrado'
                     cabeçalho(caracter='~', frase=frase, cor='\033[31m')
                     nome = None
