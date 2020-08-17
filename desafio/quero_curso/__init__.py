@@ -179,6 +179,12 @@ def pegarEmail(cadastro=True):
                 frase = 'O e-mail estava vazio. Tente novamente.'
                 cabeçalho(caracter='~', frase=frase, cor='\033[31m')
                 email = None
+            elif not (email.replace('@', '').replace('_', '').replace('.', '')).isalnum():
+                print('~' * 80)
+                print('''\033[31m\t\tO e-mail deve ser constituido por letras de A-Z e números de 0-9. 
+                Além desses, somente "@", "_" e "." e sem espaços.\033[m''')
+                print('~' * 80)
+                email = None
             elif '@' not in email:  # Verifica se o e-mail contém '@'.
                 frase = 'E-mail inválido. Tente novamente.'
                 cabeçalho(caracter='~', frase=frase, cor='\033[31m')
@@ -406,27 +412,32 @@ def compras(nome_do_arquivo=''):
                         cabeçalho(caracter='~', frase=frase, cor='\033[31m')
                         quantidade = None
                     else:
-                        if not repetição:  # Verifica se a var de repetição é False.
-                            org['quantidade'] = quantidade  # Não sendo repetição, adiciona informação no dicionário.
-                            if org['quantidade'] > org['estoque']:  # Verifica se a quantidade excede o estoque do produto.
-                                frase = f'A quantia excede o estoque de {org["estoque"]} {org["produto"]}'
-                                cabeçalho(caracter='~', frase=frase, cor='\033[31m')
-                                quantidade = None
-                            else:
-                                org['estoque'] -= org['quantidade'] #Se não exceder, refaz o estoque com a subtração da quantidade comprada.
-                                org["preçoTot"] = org['quantidade'] * org['preçoUnidade']  # Adiciona no dicionário o preço total de compra daquele produto.
-                                lista_geral.append(org.copy())  # Manda para a lista que irá conter todos os dicionários, uma cópia das informações.
+                        if quantidade <= 0:
+                            frase = 'Compra inválida, digite uma quantidade superior a 0'
+                            cabeçalho(caracter='~', frase=frase, cor='\033[31m')
+                            quantidade = None
                         else:
-                            for num, dicionários in enumerate(lista_geral): #Percorre a lista, pegando seus índices e dicionários.
-                                if dicionários['código'] == código: #Verifica em qual dicionário está a correspondência de código.
-                                    if quantidade <= dicionários['estoque']: #Verifica se a quantidade não excede o estoque do produto.
-                                        lista_geral[num]['quantidade'] += quantidade  #Adiciona nas informações já existentes daquele produto, a quantidade a mais a ser comprada.
-                                        lista_geral[num]['preçoTot'] += quantidade * lista_geral[num]['preçoUnidade'] #Adiciona no preço total a quantia com base na quantidade comprada.
-                                        lista_geral[num]['estoque'] -= quantidade #Refaz o estoque do produto, subtraindo novamente com a quantidade a mais comprada.
-                                    else:
-                                        frase = f'A quantidade excede o estoque de {lista_geral[num]["estoque"]} {lista_geral[num]["produto"]}'
-                                        cabeçalho(caracter='~', frase=frase, cor='\033[31m')
-                                        quantidade = None
+                            if not repetição:  # Verifica se a var de repetição é False.
+                                org['quantidade'] = quantidade  # Não sendo repetição, adiciona informação no dicionário.
+                                if org['quantidade'] > org['estoque']:  # Verifica se a quantidade excede o estoque do produto.
+                                    frase = f'A quantia excede o estoque de {org["estoque"]} {org["produto"]}'
+                                    cabeçalho(caracter='~', frase=frase, cor='\033[31m')
+                                    quantidade = None
+                                else:
+                                    org['estoque'] -= org['quantidade'] #Se não exceder, refaz o estoque com a subtração da quantidade comprada.
+                                    org["preçoTot"] = org['quantidade'] * org['preçoUnidade']  # Adiciona no dicionário o preço total de compra daquele produto.
+                                    lista_geral.append(org.copy())  # Manda para a lista que irá conter todos os dicionários, uma cópia das informações.
+                            else:
+                                for num, dicionários in enumerate(lista_geral): #Percorre a lista, pegando seus índices e dicionários.
+                                    if dicionários['código'] == código: #Verifica em qual dicionário está a correspondência de código.
+                                        if quantidade <= dicionários['estoque']: #Verifica se a quantidade não excede o estoque do produto.
+                                            lista_geral[num]['quantidade'] += quantidade  #Adiciona nas informações já existentes daquele produto, a quantidade a mais a ser comprada.
+                                            lista_geral[num]['preçoTot'] += quantidade * lista_geral[num]['preçoUnidade'] #Adiciona no preço total a quantia com base na quantidade comprada.
+                                            lista_geral[num]['estoque'] -= quantidade #Refaz o estoque do produto, subtraindo novamente com a quantidade a mais comprada.
+                                        else:
+                                            frase = f'A quantidade excede o estoque de {lista_geral[num]["estoque"]} {lista_geral[num]["produto"]}'
+                                            cabeçalho(caracter='~', frase=frase, cor='\033[31m')
+                                            quantidade = None
                 perg = str(input('Deseja realizar mais uma compra?[Sim/Não] ')).strip().upper()
                 while perg not in ['SIM', 'NÃO', 'NAO']:
                     frase = 'Digite SIM ou NÃO'
@@ -588,6 +599,10 @@ def adicionarProduto(nome_do_arquivo=''):
             else:
                 if nome == '': #Verifica se o nome é uma string vazia.
                     frase = 'Preencha o nome do produto'
+                    cabeçalho(caracter='~', frase=frase, cor='\033[31m')
+                    nome = None
+                elif not nome.isalnum():
+                    frase = 'O nome do produto deve ser composto somente por letras e números'
                     cabeçalho(caracter='~', frase=frase, cor='\033[31m')
                     nome = None
                 elif nome in nome_produtos: #Verifica se o nome está dentro da lista com o nome de todos os produtos.

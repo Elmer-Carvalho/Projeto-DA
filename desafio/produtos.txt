@@ -106,5 +106,5 @@ código;produto;preço;estoque
 0105;Talco;3.57;9499
 0106;Pano;4.56;834
 0107;Toalha;34.5;756
-0108;FoneDeOuvido;43.5;1230
-0109;Travesseiro;34.5;754
+0108;FoneDeOuvido;43.5;1231
+0109;Travesseiro;34.5;748

@@ -26,37 +26,39 @@ while True:
             break
 
 if opção == 3:
-    qc.cabeçalho(frase='LOGIN')
+    login_f = False
+    while not login_f:
+        qc.cabeçalho(frase='LOGIN')
 
-    código_f = None
-    while código_f is None:
-        try:
-            código_f = str(input('Código: ')).strip().upper()
-        except:
-            frase = 'Dado inválido. Tente novamente'
-            qc.cabeçalho(caracter='~', frase=frase, cor='\033[31m')
-            código_f = None
-        else:
-            if código_f == '':
-                frase = 'Preencha com o código de funcionário'
+        código_f = None
+        while código_f is None:
+            try:
+                código_f = str(input('Código: ')).strip().upper()
+            except:
+                frase = 'Dado inválido. Tente novamente'
                 qc.cabeçalho(caracter='~', frase=frase, cor='\033[31m')
                 código_f = None
+            else:
+                if código_f == '':
+                    frase = 'Preencha com o código de funcionário'
+                    qc.cabeçalho(caracter='~', frase=frase, cor='\033[31m')
+                    código_f = None
 
-    senha_f = None
-    while senha_f is None:
-        try:
-            senha_f = str(input('Senha: ')).strip()
-        except:
-            frase = 'Dado inválido. Tente novamente'
-            qc.cabeçalho(caracter='~', frase=frase, cor='\033[31m')
-            senha_f = None
-        else:
-            if senha_f == '':
-                frase = 'Preencha com a senha de funcionário'
+        senha_f = None
+        while senha_f is None:
+            try:
+                senha_f = str(input('Senha: ')).strip()
+            except:
+                frase = 'Dado inválido. Tente novamente'
                 qc.cabeçalho(caracter='~', frase=frase, cor='\033[31m')
                 senha_f = None
+            else:
+                if senha_f == '':
+                    frase = 'Preencha com a senha de funcionário'
+                    qc.cabeçalho(caracter='~', frase=frase, cor='\033[31m')
+                    senha_f = None
 
-    login_f = qc.realizarLogin(pos1=0, pos2=2, login1=código_f, login2=senha_f, nome_do_arquivo='funcionários.txt')
+        login_f = qc.realizarLogin(pos1=0, pos2=2, login1=código_f, login2=senha_f, nome_do_arquivo='funcionários.txt')
 
     if login_f:
         qc.cabeçalho(frase='ÁREA DE ESTOQUE')
@@ -118,10 +120,12 @@ else:
         print('    Redirecionando...')
         sleep(2)
 
-    qc.cabeçalho(frase='LOGIN')
-    email_login = qc.pegarEmail(False)
-    senha_login = qc.pegarSenha()
-    login = qc.realizarLogin(login1=email_login, login2=senha_login, nome_do_arquivo='cadastro.txt', pos1=2, pos2=3) #Análise da correspondência do e-mail e senha com os já armazenados
+    login = False
+    while not login:
+        qc.cabeçalho(frase='LOGIN')
+        email_login = qc.pegarEmail(False)
+        senha_login = qc.pegarSenha()
+        login = qc.realizarLogin(login1=email_login, login2=senha_login, nome_do_arquivo='cadastro.txt', pos1=2, pos2=3) #Análise da correspondência do e-mail e senha com os já armazenados
 
     if login:  # Verifica se o login foi efetuado.
         qc.cabeçalho(frase='ÁREA DE COMPRAS')
